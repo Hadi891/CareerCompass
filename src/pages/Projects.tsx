@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 import {
   Card,
   CardContent,
@@ -46,13 +48,41 @@ import {
 } from "lucide-react";
 
 export default function Projects() {
+  // 1. Fetch the whole CV
+  const { data: cvData, isLoading } = useQuery({
+    queryKey: ["myCV"],
+    queryFn: () => axios.get("/cv/me").then((r) => r.data),
+    enabled: true,
+  });
+
+  // 2. Map API → our “cvProjects” shape
+  const cvProjects = cvData?.parsed.projects.map((p, i) => ({
+    id:   `cv-${i}`,
+    title:       p.name,
+    description: p.description,
+    tags:        p.tools.map((t) => t.toLowerCase()),
+    requiredTools: p.tools,
+    projectUrl:  Array.isArray(p.link) ? p.link[0] : p.link || "",
+  })) ?? [];
+
+    // 3. Map API → our “suggestedProjects” shape
+  const suggestedProjects = cvData?.parsed.suggested_projects.map((p, i) => ({
+    id:   p.id.toString(),
+    title:       p.name,
+    description: p.description,
+    tags:        p.tools.map((t) => t.toLowerCase()),
+    difficulty:  p.difficulty as "easy" | "medium" | "hard",
+    requiredTools: p.tools,
+    // ignore tasks for now per your note
+  })) ?? [];
+  
+
   const [searchTerm, setSearchTerm] = useState("");
   const [difficultyFilter, setDifficultyFilter] = useState("all");
   const [tagFilter, setTagFilter] = useState("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [technologies, setTechnologies] = useState<string[]>([]);
   const [currentTech, setCurrentTech] = useState("");
-  const { cvProjects, suggestedProjects, addCustomProject } = useProjects();
   const { mode } = useMode();
   const { toast } = useToast();
 
@@ -201,7 +231,7 @@ export default function Projects() {
     };
 
     // Add to suggested projects using context
-    addCustomProject(customProject);
+    // addCustomProject(customProject);
 
     // Reset form and close modal
     resetForm();
@@ -451,13 +481,6 @@ export default function Projects() {
                     <CardTitle className="text-xl">{project.title}</CardTitle>
                     <div className="flex gap-2">
                       <Badge
-                        className={getDifficultyColor(project.difficulty)}
-                        variant="outline"
-                      >
-                        {project.difficulty.charAt(0).toUpperCase() +
-                          project.difficulty.slice(1)}
-                      </Badge>
-                      <Badge
                         variant="default"
                         className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
                       >
@@ -472,7 +495,7 @@ export default function Projects() {
                     {project.description}
                   </p>
 
-                  <div className="flex flex-wrap gap-2 mb-4">
+                  {/* <div className="flex flex-wrap gap-2 mb-4">
                     {project.tags
                       .filter((tag) => tag !== "completed")
                       .map((tag) => (
@@ -484,7 +507,7 @@ export default function Projects() {
                           {tag}
                         </Badge>
                       ))}
-                  </div>
+                  </div> */}
 
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm">
@@ -576,7 +599,7 @@ export default function Projects() {
                     {project.description}
                   </p>
 
-                  <div className="flex flex-wrap gap-2 mb-4">
+                  {/* <div className="flex flex-wrap gap-2 mb-4">
                     {project.tags
                       .filter((tag) => tag !== "custom")
                       .map((tag) => (
@@ -588,7 +611,7 @@ export default function Projects() {
                           {tag}
                         </Badge>
                       ))}
-                  </div>
+                  </div> */}
 
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm">

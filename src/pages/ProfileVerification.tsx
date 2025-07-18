@@ -54,7 +54,7 @@ const commonDomains = [
 ];
 
 export default function ProfileVerification() {
-  const { user, markProfileVerified } = useAuth();
+  const { user, needsProfileVerification, isLoading, markProfileVerified } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [profileImage, setProfileImage] = useState<string | null>(
@@ -172,11 +172,10 @@ export default function ProfileVerification() {
 
   // Redirect if already verified (shouldn't happen, but safety check)
   React.useEffect(() => {
-    const profileVerified = localStorage.getItem("profileVerified");
-    if (profileVerified) {
-      navigate("/dashboard");
-    }
-  }, [navigate]);
+  if (!isLoading && !needsProfileVerification) {
+      navigate("/dashboard", { replace: true })
+    } 
+  }, [needsProfileVerification, isLoading, navigate])
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center from-blue-50 to-indigo-100 dark:bg-[#525252] p-4">

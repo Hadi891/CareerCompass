@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import axios from "axios";
 import {
   Dialog,
   DialogContent,
@@ -45,134 +46,6 @@ const getInitialMessages = (projectTitle: string): ChatMessage[] => {
   ];
 };
 
-// Mock tasks for different projects
-const getProjectTasks = (projectId: string): ProjectTask[] => {
-  switch (projectId) {
-    case "1":
-      return [
-        { id: "task1", title: "Set up project structure", completed: false },
-        {
-          id: "task2",
-          title: "Create navigation and hero section",
-          completed: false,
-        },
-        { id: "task3", title: "Build about me section", completed: false },
-        { id: "task4", title: "Create projects showcase", completed: false },
-        { id: "task5", title: "Add contact form", completed: false },
-        { id: "task6", title: "Make website responsive", completed: false },
-        { id: "task7", title: "Deploy website", completed: false },
-      ];
-    case "2":
-      return [
-        {
-          id: "task1",
-          title: "Set up project and install dependencies",
-          completed: false,
-        },
-        { id: "task2", title: "Create database models", completed: false },
-        {
-          id: "task3",
-          title: "Implement user authentication",
-          completed: false,
-        },
-        { id: "task4", title: "Create task CRUD endpoints", completed: false },
-        {
-          id: "task5",
-          title: "Add task assignment functionality",
-          completed: false,
-        },
-        {
-          id: "task6",
-          title: "Implement filtering and pagination",
-          completed: false,
-        },
-        { id: "task7", title: "Write tests", completed: false },
-        { id: "task8", title: "Deploy API", completed: false },
-      ];
-    case "3":
-      return [
-        { id: "task1", title: "Set up React project", completed: false },
-        {
-          id: "task2",
-          title: "Create product image gallery",
-          completed: false,
-        },
-        {
-          id: "task3",
-          title: "Build product details section",
-          completed: false,
-        },
-        {
-          id: "task4",
-          title: "Implement product variants selection",
-          completed: false,
-        },
-        {
-          id: "task5",
-          title: "Create add to cart functionality",
-          completed: false,
-        },
-        { id: "task6", title: "Build shopping cart drawer", completed: false },
-        { id: "task7", title: "Add responsive styles", completed: false },
-      ];
-    case "4":
-      return [
-        { id: "task1", title: "Set up project structure", completed: false },
-        { id: "task2", title: "Implement geolocation", completed: false },
-        { id: "task3", title: "Connect to weather API", completed: false },
-        { id: "task4", title: "Display current weather", completed: false },
-        { id: "task5", title: "Add 5-day forecast", completed: false },
-        { id: "task6", title: "Style the application", completed: false },
-        { id: "task7", title: "Add location search", completed: false },
-        { id: "task8", title: "Make responsive", completed: false },
-      ];
-    case "5":
-      return [
-        {
-          id: "task1",
-          title: "Set up frontend and backend projects",
-          completed: false,
-        },
-        {
-          id: "task2",
-          title: "Implement user authentication",
-          completed: false,
-        },
-        {
-          id: "task3",
-          title: "Set up Socket.io connections",
-          completed: false,
-        },
-        { id: "task4", title: "Create chat UI components", completed: false },
-        { id: "task5", title: "Implement private messaging", completed: false },
-        {
-          id: "task6",
-          title: "Add group chat functionality",
-          completed: false,
-        },
-        {
-          id: "task7",
-          title: "Create online status indicators",
-          completed: false,
-        },
-        { id: "task8", title: "Add message history", completed: false },
-        { id: "task9", title: "Implement notifications", completed: false },
-        { id: "task10", title: "Deploy application", completed: false },
-      ];
-    default:
-      return [
-        { id: "task1", title: "Plan project structure", completed: false },
-        {
-          id: "task2",
-          title: "Set up development environment",
-          completed: false,
-        },
-        { id: "task3", title: "Implement core features", completed: false },
-        { id: "task4", title: "Add styling and polish", completed: false },
-        { id: "task5", title: "Test and deploy", completed: false },
-      ];
-  }
-};
 
 export default function ProjectDetails() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -187,27 +60,57 @@ export default function ProjectDetails() {
   const [showUrlModal, setShowUrlModal] = useState(false);
   const [projectUrl, setProjectUrl] = useState("");
   const chatEndRef = React.useRef<HTMLDivElement>(null);
+  const [hasLoadedContext, setHasLoadedContext] = useState(false);
 
+  // 1) Watch your context arrays and mark “loaded” once they have data
   useEffect(() => {
-    if (projectId) {
-      // First try to find in suggested projects, then in CV projects
-      const allProjects = [...suggestedProjects, ...cvProjects];
-      const foundProject = allProjects.find((p) => p.id === projectId);
-
-      if (foundProject) {
-        setProject(foundProject);
-        setTasks(getProjectTasks(projectId));
-        setMessages(getInitialMessages(foundProject.title));
-      } else {
-        navigate("/projects");
-        toast({
-          title: "Project not found",
-          description: "The requested project could not be found.",
-          variant: "destructive",
-        });
-      }
+    if (cvProjects.length > 0 || suggestedProjects.length > 0) {
+      setHasLoadedContext(true);
     }
-  }, [projectId, navigate, suggestedProjects, cvProjects]);
+  }, [cvProjects, suggestedProjects]);
+
+useEffect(() => {
+  if (!projectId) return;
+
+  // look in suggested *first* (so you can add to portfolio), then in CV
+  const all = [...suggestedProjects, ...cvProjects];
+  const found = all.find((p) => p.id === projectId);
+
+  if (!found) {
+    navigate("/projects");
+    toast({
+      title: "Project not found",
+      description: "The requested project could not be found.",
+      variant: "destructive",
+    });
+    return;
+  }
+
+  setProject(found);
+  // initialize your tasks from the project object (which you already mapped in context)
+  setTasks(found.tasks ?? []);
+  // and seed the chat UI
+  setMessages(getInitialMessages(found.title));
+}, [projectId, suggestedProjects, cvProjects, navigate, toast]);
+
+useEffect(() => {
+  if (!project || !hasLoadedContext) return;
+  axios
+    .get(`/api/projects/${project.id}/chat`)
+    .then(({ data }) => {
+      setMessages(
+        data.map((m: any) => ({
+          id: m.id.toString(),
+          sender: m.sender,
+          content: m.content,
+          timestamp: new Date(m.timestamp).getTime(),
+        }))
+      );
+    })
+    .catch(() => {
+      toast({ title: "Error", description: "Could not load chat", variant: "destructive" });
+    });
+}, [project]);
 
   useEffect(() => {
     // Scroll to bottom of chat when messages change
@@ -217,33 +120,39 @@ export default function ProjectDetails() {
   }, [messages]);
 
   const handleSendMessage = () => {
-    if (newMessage.trim() === "") return;
+    const text = newMessage.trim()
+    if (!text) return
 
-    // Add user message
-    const userMessage: ChatMessage = {
+    // 1) append the user’s message once
+    const userMsg: ChatMessage = {
       id: Date.now().toString(),
       sender: "user",
-      content: newMessage,
+      content: text,
       timestamp: Date.now(),
-    };
+    }
+    setMessages(msgs => [...msgs, userMsg])
+    setNewMessage("")
+    setLoading(true)
 
-    setMessages((prev) => [...prev, userMessage]);
-    setNewMessage("");
-    setLoading(true);
-
-    // Simulate AI response after a delay
-    setTimeout(() => {
-      const aiMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        sender: "assistant",
-        content: generateAIResponse(newMessage, project?.title || ""),
-        timestamp: Date.now(),
-      };
-
-      setMessages((prev) => [...prev, aiMessage]);
-      setLoading(false);
-    }, 1500);
-  };
+    // 2) send it, then append *only* the assistant reply
+    axios
+      .post(`/api/projects/${projectId}/chat`, { message: text })
+      .then(({ data }) => {
+        const a = data.assistant
+        const assistantMsg: ChatMessage = {
+          id: a.id.toString(),
+          sender: "assistant",
+          content: a.content,
+          // use the timestamp returned from the server
+          timestamp: new Date(a.timestamp).getTime(),
+        }
+        setMessages(msgs => [...msgs, assistantMsg])
+      })
+      .catch(() =>
+        toast({ title: "Error", description: "Chat failed", variant: "destructive" })
+      )
+      .finally(() => setLoading(false))
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -675,7 +584,7 @@ export default function ProjectDetails() {
                 size="sm"
                 className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
                 onClick={() => {
-                  setTasks(getProjectTasks(projectId || ""));
+                  setTasks(project?.tasks ?? []);
                   setMessages(getInitialMessages(project.title));
                   toast({
                     title: "Progress reset",

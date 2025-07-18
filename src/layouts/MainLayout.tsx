@@ -1,11 +1,12 @@
 import React from "react";
-import { Outlet, Navigate } from "react-router-dom";
+import { Outlet, Navigate, useLocation } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { useAuth } from "@/context/AuthContext";
 
 export function MainLayout() {
   const { user, isAuthenticated, isLoading, needsProfileVerification } =
     useAuth();
+  const { pathname } = useLocation();
 
   // Show loading state
   if (isLoading) {
@@ -17,19 +18,19 @@ export function MainLayout() {
   }
 
   // Redirect to login if not authenticated
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
+  // if (!isAuthenticated) {
+  //   return <Navigate to="/login" replace />;
+  // }
 
-  // Redirect to CV upload if user hasn't uploaded CV yet
-  if (user && !user.hasUploadedCV) {
-    return <Navigate to="/cv-upload" replace />;
-  }
-
-  // Redirect to profile verification if needed
+  // 1) If they've uploaded but not yet verified → profile-verification
   if (needsProfileVerification) {
     return <Navigate to="/profile-verification" replace />;
   }
+
+  // // 2) Only if they truly haven't uploaded → cv-upload
+  // if (user && !user.hasUploadedCV && pathname !== "/cv-upload") {
+  //   return <Navigate to="/cv-upload" replace />;
+  // }
 
   return (
     <div className="flex min-h-screen bg-gray-50 dark:bg-[#525252]">

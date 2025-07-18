@@ -8,6 +8,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 import {
   Dialog,
   DialogContent,
@@ -45,98 +47,58 @@ import {
   Camera,
 } from "lucide-react";
 
-// Mock data for experience and education
-const mockExperience = [
-  {
-    id: "1",
-    title: "Senior Software Developer",
-    company: "TechCorp Inc.",
-    location: "San Francisco, CA",
-    startDate: "Jan 2022",
-    endDate: "Present",
-    description:
-      "Leading development of web applications using React, Node.js, and cloud technologies.",
-    current: true,
-  },
-  {
-    id: "2",
-    title: "Software Developer",
-    company: "StartupHub",
-    location: "New York, NY",
-    startDate: "Jun 2020",
-    endDate: "Dec 2021",
-    description:
-      "Developed and maintained multiple client projects using modern JavaScript frameworks.",
-    current: false,
-  },
-  {
-    id: "3",
-    title: "Junior Developer",
-    company: "WebSolutions Co.",
-    location: "Austin, TX",
-    startDate: "Aug 2019",
-    endDate: "May 2020",
-    description:
-      "Built responsive websites and web applications for various clients.",
-    current: false,
-  },
-];
 
-const mockEducation = [
-  {
-    id: "1",
-    degree: "Bachelor of Science in Computer Science",
-    school: "University of California, Berkeley",
-    location: "Berkeley, CA",
-    startDate: "Aug 2015",
-    endDate: "May 2019",
-    gpa: "3.8/4.0",
-    description:
-      "Relevant coursework: Data Structures, Algorithms, Software Engineering, Database Systems",
-  },
-  {
-    id: "2",
-    degree: "Full Stack Web Development Bootcamp",
-    school: "Coding Academy",
-    location: "Online",
-    startDate: "Jan 2019",
-    endDate: "May 2019",
-    gpa: null,
-    description:
-      "Intensive 16-week program covering HTML, CSS, JavaScript, React, Node.js, and MongoDB",
-  },
-];
-
-// Mock skills data - simplified to just skill names
-const mockSkills = [
-  "JavaScript",
-  "React",
-  "Node.js",
-  "TypeScript",
-  "Python",
-  "HTML/CSS",
-  "MongoDB",
-  "PostgreSQL",
-  "Git",
-  "Docker",
-  "AWS",
-  "Redux",
-  "Express.js",
-  "Next.js",
-  "GraphQL",
-  "Jest",
-  "Webpack",
-  "Sass/SCSS",
-  "Figma",
-  "Agile/Scrum",
-  "RESTful APIs",
-  "Vue.js",
-  "Firebase",
-  "Material-UI",
-];
 
 export default function Dashboard() {
+  interface CVParsed {
+    meta: { name: string; email: string; phone: string; bio: string; linkedin: string | null; github: string | null; domain: string | null; };
+    education: Array<{
+      degree: string;
+      university: string;
+      location: string | null;
+      gpa: string | null;
+      description: string | null;
+      start_date: string;
+      end_date: string;
+    }>;
+    experience: Array<{
+      role: string;
+      company: string;
+      location: string | null;
+      date: string;
+      description: string;
+    }>;
+    skills: Array<{ name: string }>;
+    missing_skills: string[];
+    projects: Array<{
+      name: string;
+      tools: string[];
+      description: string;
+      link: string | null;
+    }>;
+  }
+
+  interface CVOut {
+    id: number;
+    filename: string;
+    created_at: string;
+    parsed: CVParsed;
+  }
   const { user } = useAuth();
+  const {
+    data: cv,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["myCV"],
+    queryFn: () => axios.get("/cv/me").then(res => res.data),
+    enabled: !!user,
+  });
+
+  if (isLoading)  return <div>Loading your CV…</div>;
+  if (isError || !cv) return <div>Couldn’t load your CV</div>;
+
+  const { experience, education, skills, missing_skills } = cv.parsed;
   const { toast } = useToast();
   const [editing, setEditing] = useState(false);
   const [pdfOpen, setPdfOpen] = useState(false);
@@ -152,12 +114,15 @@ export default function Dashboard() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const imageInputRef = React.useRef<HTMLInputElement>(null);
+  const { meta } = cv.parsed;
   const [profileData, setProfileData] = useState({
-    bio: user?.bio || "",
-    location: user?.location || "",
-    linkedin: user?.linkedin || "",
-    github: "github.com/janedoe",
+    location:  "",
+    bio:      meta.bio     ?? "",
+    linkedin: meta.linkedin ?? "",
+    github:   meta.github   ?? "",
   });
+
+  console.log(meta.name, meta.email, meta.phone, meta.bio, meta.linkedin, meta.github, experience.role);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -175,7 +140,7 @@ export default function Dashboard() {
         toast({
           title: "Invalid file type",
           description: "Please select an image file (JPG, PNG, GIF, etc.)",
-          variant: "destructive",
+          variant: "destructive", 
         });
         return;
       }
@@ -305,8 +270,8 @@ export default function Dashboard() {
 
   // Mock data for dashboard stats
   const stats = {
-    totalSkills: mockSkills.length,
-    missingSkills: 8,
+    totalSkills: skills.length,
+    missingSkills: missing_skills.length,
     coursesRecommended: 12,
     projectsSuggested: 5,
     jobsFound: 18,
@@ -379,10 +344,10 @@ export default function Dashboard() {
               </div>
 
               <div>
-                <h3 className="text-xl font-semibold">{user?.name}</h3>
-                <p className="text-muted-foreground">{user?.email}</p>
+                <h3 className="text-xl font-semibold">{meta.name}</h3>
+                <p className="text-muted-foreground">{user.email}</p>
                 <Badge variant="outline" className="mt-2">
-                  {user?.domain || "Software Development"}
+                  {meta.domain}
                 </Badge>
               </div>
             </div>
@@ -672,14 +637,14 @@ export default function Dashboard() {
                       <BookMarked className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                       <span>Total Skills Detected</span>
                     </div>
-                    <Badge variant="secondary">{stats.totalSkills}</Badge>
+                    <Badge variant="secondary">{skills.length}</Badge>
                   </div>
                 </DialogTrigger>
                 <DialogContent className="max-w-2xl max-h-[80vh]">
                   <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                       <Star className="h-5 w-5" />
-                      Your Detected Skills ({stats.totalSkills})
+                      Your Detected Skills ({skills.length})
                     </DialogTitle>
                     <DialogDescription>
                       These skills were automatically detected from your CV
@@ -687,12 +652,12 @@ export default function Dashboard() {
                   </DialogHeader>
                   <ScrollArea className="max-h-[60vh] pr-4">
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {mockSkills.map((skill, index) => (
+                      {skills.map((skill, index) => (
                         <div
                           key={index}
                           className="flex items-center justify-center p-3 border rounded-lg bg-gray-50 dark:bg-gray-800"
                         >
-                          <span className="font-medium text-sm">{skill}</span>
+                          <span className="font-medium text-sm">{skill.name}</span>
                         </div>
                       ))}
                     </div>
@@ -750,12 +715,14 @@ export default function Dashboard() {
             <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-border" />
 
             <div className="space-y-8">
-              {mockExperience.map((exp, index) => (
-                <div key={exp.id} className="relative pl-10">
+              {experience.map((exp, index) => {
+                const isCurrent = exp.date.toLowerCase().includes("present");
+                return (
+                <div key={index} className="relative pl-10">
                   {/* Timeline dot */}
                   <div
                     className={`absolute left-2 w-4 h-4 rounded-full border-2 ${
-                      exp.current
+                      isCurrent
                         ? "bg-blue-600 border-blue-600"
                         : "bg-background border-border"
                     }`}
@@ -763,11 +730,11 @@ export default function Dashboard() {
 
                   <div className="space-y-2">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                      <h3 className="font-semibold text-lg">{exp.title}</h3>
+                      <h3 className="font-semibold text-lg">{exp.role}</h3>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Calendar className="h-4 w-4" />
                         <span>
-                          {exp.startDate} - {exp.endDate}
+                          {exp.date} {/*- {exp.end_date}*/}
                         </span>
                       </div>
                     </div>
@@ -777,7 +744,7 @@ export default function Dashboard() {
                       <span className="font-medium">{exp.company}</span>
                       <span>•</span>
                       <span>{exp.location}</span>
-                      {exp.current && (
+                      {isCurrent && (
                         <Badge variant="secondary" className="ml-2">
                           Current
                         </Badge>
@@ -789,7 +756,8 @@ export default function Dashboard() {
                     </p>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </CardContent>
@@ -809,8 +777,8 @@ export default function Dashboard() {
             <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-border" />
 
             <div className="space-y-8">
-              {mockEducation.map((edu, index) => (
-                <div key={edu.id} className="relative pl-10">
+              {education.map((edu, index) => (
+                <div key={index} className="relative pl-10">
                   {/* Timeline dot */}
                   <div className="absolute left-2 w-4 h-4 rounded-full bg-green-600 border-2 border-green-600" />
 
@@ -820,14 +788,14 @@ export default function Dashboard() {
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Calendar className="h-4 w-4" />
                         <span>
-                          {edu.startDate} - {edu.endDate}
+                          {edu.start_date} - {edu.end_date}
                         </span>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Building className="h-4 w-4" />
-                      <span className="font-medium">{edu.school}</span>
+                      <span className="font-medium">{edu.university}</span>
                       <span>•</span>
                       <span>{edu.location}</span>
                       {edu.gpa && (

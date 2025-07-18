@@ -1,0 +1,15 @@
+fastapi
+uvicorn[standard]
+pydantic
+python-multipart
+pdfplumber
+PyMuPDF
+requests
+python-jose[cryptography]
+passlib[bcrypt]
+httpx
+email-validator
+python-dotenv
+psycopg2-binary
+sqlalchemy
+bs4

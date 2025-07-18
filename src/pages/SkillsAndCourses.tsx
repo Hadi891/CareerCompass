@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { useAuth } from "@/context/AuthContext";
 import {
   Card,
   CardContent,
@@ -120,12 +123,27 @@ const mockCourses = [
   },
 ];
 
+
 export default function SkillsAndCourses() {
+  const { user } = useAuth();
+  const { data: cv, isLoading: cvLoading, isError: cvError } = useQuery({
+    queryKey: ["myCV"],
+    queryFn: () => axios.get("/cv/me").then((res) => res.data),
+    enabled: !!user,
+  });
+
+  if (cvLoading) return <div>Loading your skills…</div>;
+  if (cvError || !cv) return <div>Couldn’t load your skills</div>;
+
+  // grab the missing_skills array of strings
+  const missingSkills: string[] = cv.parsed.missing_skills;
+  const courses       = cv.parsed.courses;
+
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("all");
 
   // Filter courses based on search term and active tab
-  const filteredCourses = mockCourses.filter((course) => {
+  const filteredCourses = courses.filter((course) => {
     const matchesSearch =
       course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       course.platform.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -165,16 +183,16 @@ export default function SkillsAndCourses() {
           <BookOpen className="h-5 w-5" /> Missing Skills
         </h2>
         <div className="flex flex-wrap gap-2">
-          {mockSkills.map((skill) => (
+          {missingSkills.map((skillname) => (
             <Badge
-              key={skill.id}
+              key={skillname}
               variant="outline"
               className="px-3 py-1 text-sm text-slate-900 dark:text-zinc-100 border-slate-300 dark:border-zinc-100"
             >
-              {skill.name}
-              <span className="ml-2 text-xs text-muted-foreground">
+              {skillname}
+              {/* <span className="ml-2 text-xs text-muted-foreground">
                 ({skill.category})
-              </span>
+              </span> */}
             </Badge>
           ))}
         </div>
@@ -220,7 +238,7 @@ export default function SkillsAndCourses() {
                     </CardHeader>
                     <CardContent className="pb-3">
                       <div className="flex items-center justify-between mb-3">
-                        <Badge>{course.platform}</Badge>
+                        <Badge>{"Coursera"}</Badge>
                         <span
                           className={`text-xs px-2 py-1 rounded-full ${getLevelColor(course.level)}`}
                         >
@@ -239,9 +257,7 @@ export default function SkillsAndCourses() {
                         <div className="flex items-center text-xs text-muted-foreground">
                           <BarChart2 className="mr-1 h-3 w-3" />
                           {
-                            mockSkills.find(
-                              (skill) => skill.id === course.skillId,
-                            )?.name
+                            course.skill
                           }
                         </div>
                       </div>

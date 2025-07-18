@@ -30,92 +30,60 @@ import {
 const mockJobs: Job[] = [
   {
     id: "1",
-    title: "Frontend Developer",
-    company: "TechCorp Inc.",
-    location: "New York, NY (Remote)",
-    tags: ["React", "JavaScript", "CSS", "Remote"],
+    title: "Software Engineer Back-End",
+    company: "Bayt.com",
+    location: "Beirut · Lebanon (Remote)",
+    tags: [ "Node.js", "Express", "MongoDB", "Remote"],
     description:
-      "We're looking for a Frontend Developer to join our team and help build responsive user interfaces using React and modern JavaScript.",
-    url: "https://example.com/job1",
+      "Seeking a Back-End Software Engineer in Beirut. Key responsibilities include executing SDLC, developing code, and troubleshooting systems. Requires a degree and 1-3 years experience.",
+    url: "https://www.bayt.com/en/lebanon/jobs/full-stack-developer-jobs/?jobId=5348991",
     postedDate: "2023-06-15",
   },
   {
     id: "2",
-    title: "Backend Engineer",
-    company: "DataSystems Ltd.",
-    location: "San Francisco, CA",
-    tags: ["Node.js", "Express", "MongoDB", "On-site"],
-    description:
-      "Join our backend team to develop scalable APIs and services using Node.js and MongoDB.",
-    url: "https://example.com/job2",
-    postedDate: "2023-06-10",
-  },
-  {
-    id: "3",
     title: "Full Stack Developer",
-    company: "WebSolutions Co.",
-    location: "Chicago, IL (Hybrid)",
-    tags: ["React", "Node.js", "PostgreSQL", "Hybrid"],
+    company: "Valsoft Corporation",
+    location: "Beirut · Lebanon",
+    tags: ["React", "JavaScript", "CSS", "Node.js", "Express", "MongoDB", "On-site"],
     description:
-      "Looking for a Full Stack Developer to work on both frontend and backend aspects of our web applications.",
-    url: "https://example.com/job3",
-    postedDate: "2023-06-05",
-  },
-  {
-    id: "4",
-    title: "React Native Developer",
-    company: "MobileApps Inc.",
-    location: "Austin, TX (Remote)",
-    tags: ["React Native", "JavaScript", "Mobile", "Remote"],
-    description:
-      "We need a React Native developer to help build cross-platform mobile applications.",
-    url: "https://example.com/job4",
-    postedDate: "2023-06-01",
+      "We’re seeking a Full Stack Developer with a strong interest or growing experience in AI-driven applications. You’ll contribute to projects that blend modern web development with intelligent features, from AI-enhanced dashboards to real-time APIs.",
+    url: "https://www.bayt.com/en/lebanon/jobs/full-stack-developer-jobs/?jobId=73104717",
+    postedDate: "2023-06-10",
   },
   {
     id: "5",
     title: "DevOps Engineer",
-    company: "CloudTech Solutions",
-    location: "Seattle, WA",
+    company: "MUREX S.A.S",
+    location: "Beirut · Lebanon",
     tags: ["AWS", "Docker", "CI/CD", "On-site"],
     description:
       "Join our DevOps team to manage cloud infrastructure and improve our deployment processes.",
-    url: "https://example.com/job5",
+    url: "https://www.bayt.com/en/lebanon/jobs/devops-jobs/?jobId=73093251",
     postedDate: "2023-05-25",
   },
   {
     id: "6",
-    title: "UI/UX Designer",
-    company: "CreativeDesign Studio",
-    location: "Los Angeles, CA (Remote)",
-    tags: ["Figma", "UI/UX", "Design Systems", "Remote"],
+    title: "DevOps Engineer",
+    company: "Siren Associates",
+    location: "Beirut · Lebanon",
+    tags: ["AWS", "Docker", "CI/CD", "On-site"],
     description:
-      "Looking for a UI/UX Designer to create beautiful and functional interfaces for our web and mobile applications.",
-    url: "https://example.com/job6",
+      "We are seeking a DevOps Engineer to join our team in Beirut. As a key member of our infrastructure team, you'll be responsible for setting up, managing, and monitoring our VMware infrastructure, implementing CI/CD processes using GitHub, and automating development processes.",
+    url: "https://www.bayt.com/en/lebanon/jobs/devops-jobs/?jobId=73027679",
     postedDate: "2023-05-20",
   },
   {
     id: "7",
-    title: "Data Scientist Intern",
-    company: "AnalyticsPro",
-    location: "Boston, MA (Hybrid)",
-    tags: ["Python", "Machine Learning", "Internship", "Hybrid"],
+    title: "Senior Data Scientist I",
+    company: "Careem",
+    location: "Beirut · Lebanon (Hybrid)",
+    tags: ["Python", "Machine Learning", "Hybrid"],
     description:
-      "Summer internship opportunity for data science students to work on real-world machine learning projects.",
-    url: "https://example.com/job7",
+      "We offer colleagues the opportunity to drive impact in the region while they learn and grow.",
+    url: "https://www.bayt.com/en/lebanon/jobs/data-science-jobs/?jobId=73109304",
     postedDate: "2023-05-15",
   },
-  {
-    id: "8",
-    title: "Frontend Engineering Intern",
-    company: "StartupHub",
-    location: "Miami, FL (Remote)",
-    tags: ["React", "JavaScript", "Internship", "Remote"],
-    description:
-      "Exciting internship opportunity to gain hands-on experience building modern web applications with React.",
-    url: "https://example.com/job8",
-    postedDate: "2023-05-10",
-  },
+
 ];
 
 export default function JobsAndInternships() {
@@ -242,10 +210,6 @@ export default function JobsAndInternships() {
                   {job.description}
                 </p>
 
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Calendar className="h-3 w-3" />
-                  <span>Posted {getRelativeDate(job.postedDate)}</span>
-                </div>
               </CardContent>
               <CardFooter>
                 <Button asChild className="w-full">
