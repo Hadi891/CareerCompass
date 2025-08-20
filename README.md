@@ -28,15 +28,14 @@ Here are some screenshots from the app:
 
 | Dashboard | Skill Gaps and Learning Recommendations |
 |-----------|-----------------------------------------|
-| <img width="1800" height="818" alt="Screenshot 2025-08-20 214126" src="https://github.com/user-attachments/assets/ab4406ce-789d-4a74-81bb-7c110a9e4a44" /> <img width="1797" height="815" alt="Screenshot 2025-08-20 214201" src="https://github.com/user-attachments/assets/d1502df0-dd37-4cf0-b5f7-c471fbb9a46e" />
- | <img width="1798" height="819" alt="Screenshot 2025-08-20 214236" src="https://github.com/user-attachments/assets/2549e0d3-c19c-455f-aa56-cf84e02837ec" />
- |
+| <img width="300" height="136" alt="Screenshot 2025-08-20 214126" src="https://github.com/user-attachments/assets/ab4406ce-789d-4a74-81bb-7c110a9e4a44" /> <img width="300" height="136" alt="Screenshot 2025-08-20 214201" src="https://github.com/user-attachments/assets/d1502df0-dd37-4cf0-b5f7-c471fbb9a46e" />
+ | <img width="300" height="136" alt="Screenshot 2025-08-20 214236" src="https://github.com/user-attachments/assets/2549e0d3-c19c-455f-aa56-cf84e02837ec" /> |
 
 | Projects | AI Assistant | Jobs and Internships |
 |----------|--------------|----------------------|
-| <img width="1796" height="821" alt="Screenshot 2025-08-20 214332" src="https://github.com/user-attachments/assets/53fdc01d-508a-4e1b-85da-2f69c9f26177" /> <img width="1798" height="818" alt="Screenshot 2025-08-20 214354" src="https://github.com/user-attachments/assets/552a9aa3-ac96-4d6f-92d2-0af1c002bfb8" />
- | <img width="1794" height="815" alt="Screenshot 2025-08-20 214508" src="https://github.com/user-attachments/assets/925771a1-1ae8-4b9e-8c72-5ff773bd4f3e" />
- | <img width="1799" height="818" alt="Screenshot 2025-08-20 214526" src="https://github.com/user-attachments/assets/e029b895-975f-41ab-af09-e885bf481a57" /> |
+| <img width="250" height="114" alt="Screenshot 2025-08-20 214332" src="https://github.com/user-attachments/assets/53fdc01d-508a-4e1b-85da-2f69c9f26177" /> <img width="250" height="114" alt="Screenshot 2025-08-20 214354" src="https://github.com/user-attachments/assets/552a9aa3-ac96-4d6f-92d2-0af1c002bfb8" />
+ | <img width="250" height="114" alt="Screenshot 2025-08-20 214508" src="https://github.com/user-attachments/assets/925771a1-1ae8-4b9e-8c72-5ff773bd4f3e" />
+ | <img width="250" height="114" alt="Screenshot 2025-08-20 214526" src="https://github.com/user-attachments/assets/e029b895-975f-41ab-af09-e885bf481a57" /> |
 
 
 ---
